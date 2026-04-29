@@ -28,4 +28,4 @@ Still dropping soon:
 Notes / Code: https://lnkd.in/dSfakdCc
 Playlist: https://lnkd.in/dAHB_NSN
 
-#Others
+# Others
