@@ -1,4 +1,6 @@
-🚨 AI researcher Nathan Lambert dropped probably one of the best courses on ML (at no cost)
+# 📚 Mi Base de Conocimiento
+
+# 🚨 AI researcher Nathan Lambert dropped probably one of the best courses on ML (at no cost)
 
 Here is what is inside his RLHF Free Course:
 
@@ -24,7 +26,6 @@ Still dropping soon:
 → Too fresh for print
 
 Notes / Code: https://lnkd.in/dSfakdCc
-
 Playlist: https://lnkd.in/dAHB_NSN
 
-P.S. I share more such courses here: https://lnkd.in/dcibJhzQ
+#Others
