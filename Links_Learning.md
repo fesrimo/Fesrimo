@@ -28,8 +28,8 @@ Still dropping soon:
 Notes / Code: https://lnkd.in/dSfakdCc
 Playlist: https://lnkd.in/dAHB_NSN
 
-# Others
-7 best GitHub repositories to break into data analytics and data science:
+
+# 7 best GitHub repositories to break into data analytics and data science:
 
 1. 100-Days-Of-ML-Code 
  - 𝐋𝐢𝐧𝐤: (https://lnkd.in/dcftdA57)
