@@ -4,12 +4,8 @@
 
 Here is what is inside his RLHF Free Course:
 
-Lecture 1: RLHF Overview
-→ Post-training, ground up
-→ Why it matters now
-Lecture 2: Reward Models
-→ Instruction fine-tuning basics
-→ Rejection sampling covered
+Lecture 1: RLHF Overview → Post-training, ground up → Why it matters now
+Lecture 2: Reward Models → Instruction fine-tuning basics → Rejection sampling covered
 Lecture 3: RL Math
 → Real math, simplified
 → Foundations built right
