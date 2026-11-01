@@ -1,0 +1,136 @@
+# Use this cell to write your code for Task 2
+clean_data = df.copy()
+
+# 1. city:
+clean_data['city'] = clean_data['city'].replace(['--', np.nan], 'Unknown')
+
+# 2. sale_price:
+clean_data = clean_data.dropna(subset=['sale_price'])
+clean_data = clean_data[clean_data['sale_price'] >= 0]
+clean_data['sale_price'] = clean_data['sale_price'].astype(int)
+
+# 3. sale_date:
+clean_data['sale_date'] = clean_data['sale_date'].fillna('2023-01-01')
+
+# 4. months_listed:
+mean_months = round(clean_data['months_listed'].mean(), 1)
+clean_data['months_listed'] = clean_data['months_listed'].fillna(mean_months)
+
+# 5. bedrooms:
+clean_data.loc[clean_data['bedrooms'] < 0, 'bedrooms'] = np.nan
+mean_bedrooms = round(clean_data['bedrooms'].mean())
+clean_data['bedrooms'] = clean_data['bedrooms'].fillna(mean_bedrooms).astype(int)
+
+# 6. house_type:
+mapping_house_type = {
+    'Det.': 'Detached',
+    'Semi': 'Semi-detached',
+    'Terr.': 'Terraced'
+}
+clean_data['house_type'] = clean_data['house_type'].replace(mapping_house_type)
+clean_data['house_type'] = clean_data['house_type'].fillna(clean_data['house_type'].mode()[0])
+
+# 7. area:
+if clean_data['area'].dtype == object:
+    clean_data['area'] = clean_data['area'].str.replace(' sq.m.', '', regex=False).astype(float)
+
+mean_area = round(clean_data['area'].mean(), 1)
+clean_data['area'] = clean_data['area'].fillna(mean_area)
+
+
+# Use this cell to write your code for Task 3
+import pandas as pd
+
+# Agrupar por habitaciones y calcular el promedio y la varianza del precio de venta
+price_by_rooms = df.groupby('bedrooms')['sale_price'].agg(
+    avg_price='mean',
+    var_price='var'
+).reset_index()
+
+# Redondear los valores a 1 decimal
+price_by_rooms['avg_price'] = price_by_rooms['avg_price'].round(1)
+price_by_rooms['var_price'] = price_by_rooms['var_price'].round(1)
+
+print(price_by_rooms)
+
+
+# Use this cell to write your code for Task 5
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.impute import SimpleImputer
+
+# 1. Cargar conjuntos de datos
+train = pd.read_csv('train.csv')
+validation = pd.read_csv('validation.csv')
+
+# 2. Filtrar precios negativos en entrenamiento si existen
+if 'sale_price' in train.columns:
+    train = train[train['sale_price'] >= 0]
+
+# 3. Mapeos y conversiones comunes
+city_mapping = {'Teasdale': 0, 'Silvertown': 1, 'Poppleton': 2, 'Riverford': 3}
+house_type_mapping = {'Detached': 0, 'Semi-detached': 1, 'Terraced': 2, 'Det.': 0, 'Semi': 1, 'Terr.': 2}
+
+for df in [train, validation]:
+    if 'city' in df.columns:
+        df['city'] = df['city'].map(city_mapping)
+    if 'house_type' in df.columns:
+        df['house_type'] = df['house_type'].map(house_type_mapping)
+    
+    # Limpiar 'area' si viene con texto
+    if 'area' in df.columns and df['area'].dtype == object:
+        df['area'] = df['area'].str.replace(' sq.m.', '', regex=False).astype(float)
+        
+    # Extraer fechas si existe la columna
+    if 'sale_date' in df.columns:
+        df['sale_date'] = pd.to_datetime(df['sale_date'])
+        df['day'] = df['sale_date'].dt.day
+        df['month'] = df['sale_date'].dt.month
+        df['year'] = df['sale_date'].dt.year
+
+# 4. Definir X e y excluyendo columnas innecesarias
+cols_to_drop = ['index', 'house_id', 'sale_price', 'sale_date']
+X_train = train.drop(columns=cols_to_drop, errors='ignore')
+y_train = train['sale_price']
+
+cols_to_drop_val = ['index', 'house_id', 'sale_date']
+X_validation = validation.drop(columns=cols_to_drop_val, errors='ignore')
+
+# 5. Pipeline de imputación y entrenamiento con Regresión Lineal múltiple
+# Rellenar valores nulos por seguridad
+X_train = X_train.fillna(X_train.mean(numeric_only=True))
+X_validation = X_validation.fillna(X_train.mean(numeric_only=True))
+
+comparison_model = LinearRegression()
+comparison_model.fit(X_train, y_train)
+
+# 6. Predecir y construir el DataFrame de salida requerido EXACTAMENTE con el nombre 'compare_result'
+validation['price'] = comparison_model.predict(X_validation)
+
+compare_result = validation[['house_id', 'price']].copy()
+compare_result['price'] = compare_result['price'].round(1)
+
+print(compare_result.head())
+
+
+
+import numpy as np
+from sklearn.metrics import mean_squared_error
+
+# Verificar si la columna real está en el conjunto de validación
+if 'sale_price' in validation.columns:
+    y_val = validation['sale_price']
+    
+    # Calcular RMSE para el modelo base (si se guardaron las predicciones)
+    # rmse_base = np.sqrt(mean_squared_error(y_val, base_result['price']))
+    
+    # Calcular RMSE para el modelo de comparación (Random Forest)
+    rmse_compare = np.sqrt(mean_squared_error(y_val, compare_result['price']))
+    
+    print(f"Compare Model RMSE: {rmse_compare:.2f}")
+else:
+    print("El archivo validation.csv no contiene la columna 'sale_price' (es un conjunto ciego de prueba).")
